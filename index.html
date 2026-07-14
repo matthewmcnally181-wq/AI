@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Automation Assistant</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>🧠 AI Automation Assistant</h1>
+
+    <div class="input-box">
+        <input type="text" id="commandInput" placeholder="Type a command...">
+        <button onclick="runCommand()">Run</button>
+    </div>
+
+    <div class="output">
+        <h3>Parsed Command</h3>
+        <pre id="parsedOutput"></pre>
+
+        <h3>Result</h3>
+        <pre id="resultOutput"></pre>
+    </div>
+</div>
+
+<script>
+async function runCommand() {
+    const input = document.getElementById("commandInput").value;
+
+    const response = await fetch("/run", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ command: input })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+        document.getElementById("parsedOutput").textContent =
+            JSON.stringify(data.parsed, null, 2);
+
+        document.getElementById("resultOutput").textContent =
+            data.result;
+    } else {
+        document.getElementById("resultOutput").textContent =
+            "Error: " + data.error;
+    }
+}
+</script>
+
+</body>
+</html>
