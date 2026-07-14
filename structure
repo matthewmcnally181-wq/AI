@@ -1,0 +1,8 @@
+ai-automation-assistant/
+│── main.py
+│── ai_parser.py
+│── actions.py
+│── executor.py
+│── config.json
+│── requirements.txt
+│── README.md
