@@ -1,54 +1,92 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
     <title>AI Automation Assistant</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 
 <div class="container">
-    <h1>🧠 AI Automation Assistant</h1>
+    <h1>🧠 Automation Assistant</h1>
 
     <div class="input-box">
-        <input type="text" id="commandInput" placeholder="Type a command...">
+        <input id="commandInput" placeholder="Enter command...">
         <button onclick="runCommand()">Run</button>
     </div>
 
-    <div class="output">
-        <h3>Parsed Command</h3>
-        <pre id="parsedOutput"></pre>
-
-        <h3>Result</h3>
-        <pre id="resultOutput"></pre>
+    <div class="input-box">
+        <input id="scheduleTime" placeholder="Seconds (e.g. 60)">
+        <button onclick="scheduleTask()">Schedule</button>
     </div>
+
+    <div class="input-box">
+        <input id="watchPath" placeholder="Folder path to watch">
+        <button onclick="startWatcher()">Watch Folder</button>
+    </div>
+
+    <h3>Result</h3>
+    <pre id="result"></pre>
+
+    <h3>History</h3>
+    <ul id="history"></ul>
 </div>
 
 <script>
 async function runCommand() {
-    const input = document.getElementById("commandInput").value;
+    const cmd = document.getElementById("commandInput").value;
 
-    const response = await fetch("/run", {
+    const res = await fetch("/run", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ command: input })
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({command: cmd})
     });
 
-    const data = await response.json();
-
-    if (data.success) {
-        document.getElementById("parsedOutput").textContent =
-            JSON.stringify(data.parsed, null, 2);
-
-        document.getElementById("resultOutput").textContent =
-            data.result;
-    } else {
-        document.getElementById("resultOutput").textContent =
-            "Error: " + data.error;
-    }
+    const data = await res.json();
+    document.getElementById("result").textContent = data.result;
+    loadHistory();
 }
+
+async function scheduleTask() {
+    const cmd = document.getElementById("commandInput").value;
+    const seconds = document.getElementById("scheduleTime").value;
+
+    await fetch("/schedule", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({command: cmd, seconds: seconds})
+    });
+
+    alert("Scheduled!");
+}
+
+async function startWatcher() {
+    const path = document.getElementById("watchPath").value;
+    const cmd = document.getElementById("commandInput").value;
+
+    await fetch("/watch", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({path: path, command: cmd})
+    });
+
+    alert("Watching folder!");
+}
+
+async function loadHistory() {
+    const res = await fetch("/history");
+    const data = await res.json();
+
+    const list = document.getElementById("history");
+    list.innerHTML = "";
+
+    data.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = item[0] + " → " + item[1];
+        list.appendChild(li);
+    });
+}
+
+loadHistory();
 </script>
 
 </body>
