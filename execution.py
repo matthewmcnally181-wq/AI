@@ -1,8 +1,9 @@
-from actions import organize_files, create_folder, move_file
-
-def execute(command):
+def execute(command, dry_run=False):
     action = command.get("action")
     params = command.get("parameters", {})
+
+    if dry_run:
+        return f"[DRY RUN] Would execute: {action} with {params}"
 
     if action == "organize_files":
         return organize_files(params["source"], params["destination"])
