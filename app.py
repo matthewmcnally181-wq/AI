@@ -63,3 +63,20 @@ def watch():
 
 if __name__ == "__main__":
     app.run(debug=True)
+@app.route("/preview", methods=["POST"])
+def preview():
+    data = request.json
+    user_input = data.get("command")
+
+    try:
+        command = parse_command(user_input)
+        result = execute(command, dry_run=True)
+
+        return jsonify({
+            "success": True,
+            "preview": result,
+            "parsed": command
+        })
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
